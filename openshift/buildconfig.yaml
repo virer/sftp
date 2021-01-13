@@ -1,0 +1,26 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: sftp
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 'sftp:latest'
+  resources: {}
+  successfulBuildsHistoryLimit: 2
+  failedBuildsHistoryLimit: 2
+  strategy:
+    dockerStrategy: {}
+  postCommit: {}
+  source:
+    type: Git
+    git:
+      uri: 'git@github.com:virer/sftp.git'
+      ref: master
+    sourceSecret:
+      name: ssh-key-github-com
+  triggers:
+    - type: ImageChange
+    - type: ConfigChange
+  runPolicy: Serial

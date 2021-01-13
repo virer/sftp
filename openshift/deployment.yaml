@@ -1,0 +1,61 @@
+ kind: "Deployment"
+apiVersion: "apps/v1"
+metadata:
+  name: "sftp"
+  app: "sftp"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: "sftp"
+      app: "sftp"
+  template: 
+    metadata:
+      labels:
+        name: "sftp"
+        app: "sftp"
+    spec:
+      serviceAccount: sftp-sa
+      containers:
+        - name: "sftp"
+          image: image-registry.openshift-image-registry.svc:5000/my-namespace-example/sftp
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: sftp-data-volume
+              mountPath: /home/my-sftp-user/upload
+            - name: sftp-users-volume
+              mountPath: /etc/sftp/
+          ports:
+            - containerPort: 22
+              protocol: "TCP"
+          resources: {}
+          readinessProbe:
+            tcpSocket:
+              port: 22
+            initialDelaySeconds: 5
+            timeoutSeconds: 20
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 10
+          terminationMessagePath: /dev/termination-log
+          livenessProbe:
+            tcpSocket:
+              port: 22
+            initialDelaySeconds: 5
+            timeoutSeconds: 20
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 10
+      volumes:
+        - name: sftp-users-volume
+          configMap:
+            name: sftp-users-list
+        - name: sftp-data-volume
+          persistentVolumeClaim:
+            claimName: my-sftp-pvc
+  strategy: 
+    type: "RollingUpdate"
+  paused: false 
+  revisionHistoryLimit: 2 
+  minReadySeconds: 3
+ 

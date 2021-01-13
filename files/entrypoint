@@ -91,9 +91,12 @@ if [ -d /etc/sftp.d ]; then
 fi
 
 if $startSshd; then
-    log "Executing sshd"
+    log "Executing sshd..."
+    # Changing mode before running for OpenShift anyuid compatibility
+    chown root:root /var/run/sshd /run/sshd
+    chmod 755 /var/run/sshd /run/sshd
     exec /usr/sbin/sshd -D -e
 else
-    log "Executing $*"
+    log "B - Executing $*"
     exec "$@"
 fi

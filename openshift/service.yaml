@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sftp
+spec:
+  ports:
+    - protocol: TCP
+      port: 22
+      targetPort: 22
+      nodePort: 30922
+  selector:
+    app: sftp
+    name: sftp
+  type: NodePort
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster
